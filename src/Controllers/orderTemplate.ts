@@ -1,49 +1,26 @@
-"use strict";
-//const nodemailer = require("nodemailer");
- import nodemailer from "nodemailer";
-// If you're using Amazon SES in a region other than US West (Oregon),
-// replace email-smtp.us-west-2.amazonaws.com with the Amazon SES SMTP
-// endpoint in the appropriate AWS Region.
-const smtpEndpoint = "email-smtp.us-east-2.amazonaws.com";
-// The port to use when connecting to the SMTP server.
-const port = 587;
+import User,{ IUser } from '../Models/User.model';
+import mailCheck from './mailcheck';
 
-// Replace sender@example.com with your "From" address.
-// This address must be verified with Amazon SES.
-const senderAddress = "<order@relentlessstrength.in>";
+interface IOrderEmailInput
+{
+  orderNo: string;
+  purchaseItemNo: string;
+  purchaseItemCost: string;
+  shippingCost: string;
+  tax: string;
+  total: string;
+}
 
-// Replace recipient@example.com with a "To" address. If your account
-// is still in the sandbox, this address must be verified. To specify
-// multiple addresses, separate each address with a comma.
-//var toAddresses = "subhash.bvb@gmail.com";
-
-// CC and BCC addresses. If your account is in the sandbox, these
-// addresses have to be verified. To specify multiple addresses, separate
-// each address with a comma.
-var ccAddresses = "cc-recipient0@example.com,cc-recipient1@example.com";
-var bccAddresses = "bcc-recipient@example.com";
-
-// Replace smtp_username with your Amazon SES SMTP user name.
-//const smtpUsername = process.env.smtpUsername;
-//console.log('smtpUsername', process.env.smtpUsername);
-// Replace smtp_password with your Amazon SES SMTP password.
-////const smtpPassword = process.env.smtpPassword;
-//console.log('smtpPassword', process.env.smtpPassword);
-// (Optional) the name of a configuration set to use for this message.
-//var configurationSet = "ConfigSet";
-
-
-const smtpUsername="AKIA4OLBITJPLLNNE7N3";
-const smtpPassword = "BObyZJH/OSKamLI6ja4tVJqY73e7xsTtWr447mXxbsED";
-
-// The subject line of the email
-var subject = "Your order is confirmed.";
-
-// The email body for recipients with non-HTML email clients.
-var body_text = `Your order is confirmed`;
-
-// The body of the email for recipients whose email clients support HTML content.
-var body_html = `
+function createOrderEmailBody({
+  orderNo,
+  purchaseItemNo,
+  purchaseItemCost,
+  shippingCost,
+  tax,
+  total
+}: IOrderEmailInput): string
+{
+   let body_html = `
 
 <!DOCTYPE html>
 <html>
@@ -129,7 +106,7 @@ var body_html = `
                                 <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:300px;">
                                     <tr>
                                         <td align="left" valign="top" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 36px; font-weight: 800; line-height: 48px;" class="mobile-center">
-                                            <h1 style="font-size: 36px; font-weight: 800; margin: 0; color: #ffffff;">Relentlessstrength Store</h1>
+                                            <h1 style="font-size: 30px; font-weight:700; margin: 0; color: #ffffff;">Relentless</h1>
                                         </td>
                                     </tr>
                                 </table>
@@ -156,7 +133,7 @@ var body_html = `
                         <td align="center" style="padding: 35px 35px 20px 35px; background-color: #ffffff;" bgcolor="#ffffff">
                             <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:600px;">
                                 <tr>
-                                    <td align="center" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding-top: 25px;"> <img src="https://img.icons8.com/carbon-copy/100/000000/checked-checkbox.png" width="125" height="120" style="display: block; border: 0px;" /><br>
+                                    <td align="center" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding-top: 25px;"> <img src="https://img.icons8.com/bubbles/100/000000/checkmark.png" width="125" height="120" style="display: block; border: 0px;" /><br>
                                         <h2 style="font-size: 30px; font-weight: 800; line-height: 36px; color: #333333; margin: 0;"> Thank You For Your Order! </h2>
                                     </td>
                                 </tr>
@@ -170,19 +147,19 @@ var body_html = `
                                         <table cellspacing="0" cellpadding="0" border="0" width="100%">
                                             <tr>
                                                 <td width="75%" align="left" bgcolor="#eeeeee" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 10px;"> Order Confirmation # </td>
-                                                <td width="25%" align="left" bgcolor="#eeeeee" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 10px;"> 2345678 </td>
+                                                <td width="25%" align="left" bgcolor="#eeeeee" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 10px;"> ${orderNo} </td>
                                             </tr>
                                             <tr>
-                                                <td width="75%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 15px 10px 5px 10px;"> Purchased Item (1) </td>
-                                                <td width="25%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 15px 10px 5px 10px;"> INR 1200.00 </td>
+                                                <td width="75%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 15px 10px 5px 10px;"> Purchased Item (${purchaseItemNo}) </td>
+                                                <td width="25%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 15px 10px 5px 10px;"> INR ${purchaseItemCost} </td>
                                             </tr>
                                             <tr>
                                                 <td width="75%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 5px 10px;"> Shipping + Handling </td>
-                                                <td width="25%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 5px 10px;"> INR 100.00 </td>
+                                                <td width="25%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 5px 10px;"> INR ${shippingCost} </td>
                                             </tr>
                                             <tr>
                                                 <td width="75%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 5px 10px;"> Sales Tax </td>
-                                                <td width="25%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 5px 10px;"> INR 5.00 </td>
+                                                <td width="25%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 5px 10px;"> INR ${tax} </td>
                                             </tr>
                                         </table>
                                     </td>
@@ -192,7 +169,7 @@ var body_html = `
                                         <table cellspacing="0" cellpadding="0" border="0" width="100%">
                                             <tr>
                                                 <td width="75%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 10px; border-top: 3px solid #eeeeee; border-bottom: 3px solid #eeeeee;"> TOTAL </td>
-                                                <td width="25%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 10px; border-top: 3px solid #eeeeee; border-bottom: 3px solid #eeeeee;"> INR 1305.00 </td>
+                                                <td width="25%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 10px; border-top: 3px solid #eeeeee; border-bottom: 3px solid #eeeeee;"> INR ${total} </td>
                                             </tr>
                                         </table>
                                     </td>
@@ -282,47 +259,15 @@ var body_html = `
 </html>
 
 `;
+  return body_html;
+ }
+  
+function createOrderEmailSubject( OrderNo: string): string {
+  return `Your Order #${OrderNo} has successfully placed.`;
+ }
 
-// The message tags that you want to apply to the email.
-var tag0 = "key0=value0";
-var tag1 = "key1=value1";
-
-async function main(toAddresses: string){
-  console.log('sending email................................................................')
-  // Create the SMTP transport.
-  let transporter = nodemailer.createTransport({
-    host: smtpEndpoint,
-    port: port,
-    secure: false, // true for 465, false for other ports
-    auth: {
-      user: smtpUsername,
-      pass: smtpPassword
-    }
-  });
-
-  // Specify the fields in the email.
-  let mailOptions = {
-    from: senderAddress,
-    to: toAddresses,
-    subject: subject,
-   // cc: ccAddresses,
-  //  bcc: bccAddresses,
-    text: body_text,
-    html: body_html,
-    // Custom headers for configuration set and message tags.
-    headers: {
-     // 'X-SES-CONFIGURATION-SET': configurationSet,
-      'X-SES-MESSAGE-TAGS': tag0,
-     // 'X-SES-MESSAGE-TAGS': tag1
-    }
+  
+  export default {
+    createOrderEmailSubject,
+    createOrderEmailBody
   };
-
-  // Send the email.
-  let info = await transporter.sendMail(mailOptions)
-
-  console.log("Message sent! Message ID: ", info.messageId);
-}
-
-export default {
-  main
-};
