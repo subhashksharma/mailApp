@@ -1,5 +1,4 @@
 import User,{ IUser } from '../Models/User.model';
-//import mailCheck from './mailcheck';
 import OrderMail from './OrderMail.controller';
 interface ICreateUserInput {
     email: IUser['email'];
@@ -27,7 +26,7 @@ async function CreateUser({
     tax: string ,
     total: string
     */
-        OrderMail.sendOrderMail('snipgard@gmail.com', '12334444', '3' , '1200', '100', '50', '15000');
+       // OrderMail.sendOrderMail('snipgard@gmail.com', '12334444', '3' , '1200', '100', '50', '15000');
         return data;
       })
       .catch((error: Error) => {

@@ -2,14 +2,14 @@
 import nodemailer from "nodemailer";
 const smtpEndpoint = "email-smtp.us-east-2.amazonaws.com";
 const port = 587;
-const senderAddress = "<order@relentlessstrength.in>";
+const senderAddress = "Relentlessstrength Order<ordermaster@relentlessstrength.in>";
 
 import ordermail from './orderTemplate';
 //var ccAddresses = "cc-recipient0@example.com,cc-recipient1@example.com";
 //var bccAddresses = "bcc-recipient@example.com";
 
-const smtpUsername="AKIA4OLBITJPLLNNE7N3";
-const smtpPassword = "BObyZJH/OSKamLI6ja4tVJqY73e7xsTtWr447mXxbsED";
+const smtpUsername="TEST";
+const smtpPassword = "TEST";
 
 // The subject line of the email
 //var subject = "Your order is confirmed.";
@@ -30,7 +30,8 @@ async function sendOrderMail(toAddresses: string,
     purchaseItemCost: string,
     shippingCost: string,
     tax: string ,
-    total: string
+    total: string,
+    wasSuccessful: boolean
 )
 {
   console.log('sending email................................................................')
@@ -45,22 +46,43 @@ async function sendOrderMail(toAddresses: string,
     }
   });
 
+ let subject = "";
+  let body = "";
+  let text = ""
+  if (wasSuccessful) {
+    text = "Your order from relentlessstrength.in was successfull";
+    subject = ordermail.createOrderSuccessfull(orderNo);
+    body = ordermail.createOrderSuccessfullEmailBody({
+      orderNo,
+      purchaseItemNo,
+      purchaseItemCost,
+      shippingCost,
+      tax,
+      total,
+      wasSuccessful
+  })
+  } else {
+    text = "Your order from relentlessstrength.in was unsuccessfull";
+    subject = ordermail.createOrderUnSuccessfull(orderNo);
+    body = ordermail.createOrderUnSuccessfullEmailBody({
+      orderNo,
+      purchaseItemNo,
+      purchaseItemCost,
+      shippingCost,
+      tax,
+      total,
+      wasSuccessful
+  })
+  }
   // Specify the fields in the email.
   let mailOptions = {
     from: senderAddress,
     to: toAddresses,
-    subject: ordermail.createOrderEmailSubject(orderNo),
+    subject: subject,
    // cc: ccAddresses,
   //  bcc: bccAddresses,
-    text: 'You order is confirmed',
-      html: ordermail.createOrderEmailBody({
-          orderNo,
-          purchaseItemNo,
-          purchaseItemCost,
-          shippingCost,
-          tax,
-          total
-      }),
+    text: text,
+    html: body,
     // Custom headers for configuration set and message tags.
     headers: {
      // 'X-SES-CONFIGURATION-SET': configurationSet,

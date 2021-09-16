@@ -10,9 +10,10 @@ router.post('/api/sendOrderEmail', async (req, res) =>
         req.body.orderNo,
         req.body.purchaseItemNo,
         req.body.purchaseItemCost,
-       req.body.shippingCost,
-       req.body.tax ,
-       req.body.total);
+        req.body.shippingCost,
+        req.body.tax ,
+        req.body.total,
+    req.body.wasSuccessful);
       
     return res.send({ orderDetail });
 });
