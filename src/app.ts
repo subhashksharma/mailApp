@@ -3,6 +3,7 @@ import express, { Application, Request, Response, NextFunction } from "express"
 import dotenv from 'dotenv';
 dotenv.config();
 
+
 import { json } from "body-parser";
 import Connect from "./connect"
 import { mailRoute } from "./routes/mailRoute";
