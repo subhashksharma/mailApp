@@ -7,9 +7,7 @@ interface IOrderEmailInput
   purchaseItemCost: string;
   shippingCost: string;
   tax: string;
-    total: string;
-    wasSuccessful:boolean;
-    
+  total: string;
 }
 
 function createOrderSuccessfullEmailBody({
@@ -18,8 +16,7 @@ function createOrderSuccessfullEmailBody({
   purchaseItemCost,
   shippingCost,
   tax,
-    total,
-    wasSuccessful
+  total
 }: IOrderEmailInput): string
 {
    let body_html = `
@@ -261,15 +258,8 @@ function createOrderSuccessfullEmailBody({
  }
   
 
- function createOrderUnSuccessfullEmailBody({
-    orderNo,
-    purchaseItemNo,
-    purchaseItemCost,
-    shippingCost,
-    tax,
-     total,
-    wasSuccessful
-  }: IOrderEmailInput): string
+ function createOrderUnSuccessfullEmailBody(
+    orderNo: string): string
   {
      let body_html = `
   
