@@ -33,8 +33,8 @@ var bccAddresses = "bcc-recipient@example.com";
 //var configurationSet = "ConfigSet";
 
 
-const smtpUsername="AKIA4OLBITJPLLNNE7N3";
-const smtpPassword = "BObyZJH/OSKamLI6ja4tVJqY73e7xsTtWr447mXxbsED";
+const smtpUsername="";
+const smtpPassword = "";
 
 // The subject line of the email
 var subject = "Your order is confirmed.";
